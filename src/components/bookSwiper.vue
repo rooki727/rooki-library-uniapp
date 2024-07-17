@@ -8,7 +8,7 @@
           hover-class="none"
           class="navigator"
         >
-          <image :src="item.main_picture" mode="aspectFill" class="image" />
+          <image :src="item.main_picture" mode="aspectFit" class="image" />
         </navigator>
       </swiper-item>
     </swiper>

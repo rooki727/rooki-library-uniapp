@@ -15,9 +15,10 @@
         v-model="searchInput"
       />
       <navigator
+        class="searchIcon"
         :url="`/pages/search/search?searchInput=${searchInput || guessName}`"
         open-type="navigate"
-        hover-class="navigator-hover"
+        hover-class="none"
       >
         <uni-icons type="search" size="25"></uni-icons>
       </navigator>
@@ -99,7 +100,13 @@ onMounted(() => {
     background-color: rgba(255, 255, 255, 0.5);
   }
   .searchInput {
-    width: 100%;
+    width: 85%;
+    height: 64rpx;
+  }
+  .searchIcon {
+    line-height: 64rpx;
+    text-align: center;
+    width: 12%;
     height: 64rpx;
   }
 }

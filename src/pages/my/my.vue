@@ -9,9 +9,15 @@
           style="width: 50%"
         >
           <view class="loginCard"
-            ><image mode="aspectFill" class="awatar" :src="memberStore.profile.awatar" /><view
-              class="midInfo"
-            >
+            ><image
+              mode="aspectFill"
+              class="awatar"
+              :src="
+                memberStore.profile.avatar
+                  ? memberStore.profile.avatar
+                  : '../../static/images/OIP-C.jpg'
+              "
+            /><view class="midInfo">
               <view>{{ memberStore.profile.name || memberStore.profile.account }}</view>
               <view class="goProfile">点击修改信息</view>
             </view>
@@ -89,7 +95,6 @@ const navbarHeight = safeArea?.top + 20
 const memberStore = useMemberStore()
 const guessLikeRef = ref(null)
 const onScrolltolower = () => {
-  console.log('到底了')
   guessLikeRef.value?.getMore()
 }
 

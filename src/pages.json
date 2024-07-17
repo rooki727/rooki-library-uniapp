@@ -57,7 +57,15 @@
 		{
 			"path": "pages/search/search",
 			"style": {
-				"navigationBarTitleText": "搜索结果"
+				"navigationBarTitleText": "搜索结果",
+        "navigationStyle": "custom",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/categoryLists/categoryLists",
+			"style": {
+				"navigationBarTitleText": "分类榜单"
 			}
 		}
 	],
