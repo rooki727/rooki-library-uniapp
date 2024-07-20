@@ -1,6 +1,6 @@
 <template>
   <view class="carousel">
-    <swiper indicator-dots autoplay="false" circular>
+    <swiper indicator-dots autoplay="false" circular indicator-active-color="orange">
       <swiper-item v-for="item in bannerList" :key="item.book_id">
         <navigator
           :url="`/pages/book/book?book_id=${item.book_id}`"

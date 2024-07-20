@@ -35,12 +35,6 @@ const getCategoryFirstBook = async () => {
   })
 }
 
-// const getBookByCategory = async () => {
-//   await getBookByCategoryAPI('科普类', 1, 4).then((res) => {
-//     console.log(res.result)
-//   })
-// }
-
 const getSaleCategoryList = async () => {
   await getSaleCategoryListAPI().then((res) => {
     // 1. 按照 value 值进行降序排序
@@ -51,6 +45,23 @@ const getSaleCategoryList = async () => {
 
 const onScrolltolower = () => {
   guessLikeRef.value.getMore()
+}
+// 下拉刷新
+const isTriggered = ref(false)
+const onRefresherrefresh = async () => {
+  isTriggered.value = true
+  guessLikeRef.value?.resetData()
+  await getHomegetTotalPage().then(() => {
+    getBannerList()
+  })
+  await Promise.all([
+    getBannerList(),
+    getCategoryFirstBook(),
+    getSaleCategoryList(),
+    guessLikeRef.value?.getMore(),
+  ])
+
+  isTriggered.value = false
 }
 onLoad(async () => {
   await getHomegetTotalPage().then(() => {
@@ -68,6 +79,9 @@ onLoad(async () => {
     class="scrollIndex"
     @scrolltolower="onScrolltolower"
     enable-back-to-top
+    refresher-enabled="true"
+    :refresher-triggered="isTriggered"
+    @refresherrefresh="onRefresherrefresh"
   >
     <bookSwiper :bannerList="bannerList"></bookSwiper>
     <CategoryFour :categoryFour="categoryFour"></CategoryFour>

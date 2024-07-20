@@ -37,10 +37,11 @@ const bookList = computed(() => prop.bookList)
     width: 49%;
     height: 200px;
     text-align: center;
+    margin-bottom: 2%;
     .bookItemImg {
       margin-top: 10px;
-      width: 170px;
-      height: 130px;
+      width: 90%;
+      height: 65%;
     }
     .bookItemText {
       font-size: 14px;

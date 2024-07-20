@@ -12,11 +12,7 @@
             ><image
               mode="aspectFill"
               class="awatar"
-              :src="
-                memberStore.profile.avatar
-                  ? memberStore.profile.avatar
-                  : '../../static/images/OIP-C.jpg'
-              "
+              :src="awatar ? awatar : '../../static/images/OIP-C.jpg'"
             /><view class="midInfo">
               <view>{{ memberStore.profile.name || memberStore.profile.account }}</view>
               <view class="goProfile">点击修改信息</view>
@@ -87,7 +83,7 @@
 <script setup>
 import { useMemberStore } from '@/stores/modules/member'
 import GuessLike from '@/components/guessLike.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 //获取屏幕边界
 const { safeArea } = uni.getSystemInfoSync()
 //获取导航栏高度
@@ -105,6 +101,7 @@ const orderTitle = [
   { type: 4, name: '待评价', icon: 'icon-31daipingjia' },
   { type: 5, name: '退款/售后', icon: 'icon-tuikuanshouhou' },
 ]
+const awatar = computed(() => memberStore.profile?.awatar)
 </script>
 
 <style lang="scss">

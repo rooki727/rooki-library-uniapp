@@ -51,7 +51,9 @@
 		{
 			"path": "pages/book/book",
 			"style": {
-				"navigationBarTitleText": "书本详情"
+				"navigationBarTitleText": "书本详情",
+        "navigationStyle": "custom",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{
