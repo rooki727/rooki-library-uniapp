@@ -243,7 +243,6 @@ const clearForm = () => {
 
 onMounted(() => {
   getCaptcha()
-  console.log(captchaString.value)
 })
 </script>
 

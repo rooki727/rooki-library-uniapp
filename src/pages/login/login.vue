@@ -98,7 +98,6 @@ const onCheck = () => {
   console.log(formData.value.checked, canSubmit.value)
 }
 const submitForm = () => {
-  console.log('submitForm')
   form.value
     .validate()
     .then(async (res) => {
@@ -112,9 +111,7 @@ const submitForm = () => {
               uni.showToast({ title: '登录成功', icon: 'success', duration: 2000 })
               setTimeout(() => {
                 // 页面跳转
-                uni.switchTab({
-                  url: '/pages/my/my',
-                })
+                uni.navigateBack()
               }, 500)
             } else {
               uni.showToast({

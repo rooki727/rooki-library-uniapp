@@ -50,10 +50,10 @@
         <view class="chooseItem" v-if="!selectAddress && !defaultAddress"
           >请选择收获地址<uni-icons type="right" size="16"></uni-icons
         ></view>
-        <view class="chooseItem" v-if="defaultAddress && !selectAddress"
+        <view class="chooseItem" v-else-if="defaultAddress && !selectAddress"
           >送至 {{ defaultAddress.bigAddress }} {{ defaultAddress.fullAddress }}</view
         >
-        <view class="chooseItem" v-else
+        <view class="chooseItem" v-else-if="selectAddress"
           >送至 {{ selectAddress.bigAddress }} {{ selectAddress.fullAddress }}</view
         >
       </view>
@@ -95,6 +95,7 @@
   <!-- sku弹出层 -->
   <uni-popup ref="popupSku" type="bottom" background-color="#fff">
     <bookSku
+      @refresh="refresh"
       @close="popupSku?.close()"
       :btnName="btnName"
       :book="book"
@@ -104,17 +105,18 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getBookByIdAPI } from '@/apis/book'
 import guessLike from '@/components/guessLike.vue'
 import { useAddressStore } from '@/stores/modules/address'
 import { getAddressListByIdAPI } from '@/apis/address'
 import { useMemberStore } from '@/stores/modules/member'
-import AddressPanel from '../../components/AddressPanel.vue'
+import AddressPanel from '@/components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { getCartCountAPI } from '@/apis/cart'
 import bookSku from './components/bookSku.vue'
 import { getBookCollectAPI, addBookCollectAPI, deleteBookCollectAPI } from '@/apis/collection'
+import { onShow } from '@dcloudio/uni-app'
 const memberStore = useMemberStore()
 const user_id = computed(() => memberStore.profile.user_id)
 const addressStore = useAddressStore()
@@ -226,7 +228,12 @@ const buttonClick = (e) => {
       break
   }
 }
-
+// 点击完添加购物车后 刷新
+const refresh = (val) => {
+  if (val === 'refreshCartCount') {
+    getCartCount()
+  }
+}
 const getBookById = () => {
   getBookByIdAPI(book_id.value).then((res) => {
     book.value = res.result
@@ -256,6 +263,7 @@ const onTapImage = (url) => {
 const addressList = ref([])
 const defaultAddress = ref('')
 const getAddressListById = async () => {
+  if (!user_id.value) return
   const res = await getAddressListByIdAPI(parseInt(user_id.value))
   addressList.value = res.result
   defaultAddress.value = addressList.value.find((item) => item.isDefault === 1)
@@ -268,10 +276,24 @@ const selectAddress = ref('')
 // 弹出层条件渲染
 const popupName = ref('address' | 'service')
 const openPopup = (name) => {
-  // 修改弹出层名称
-  popupName.value = name
-  // 打开弹出层
-  popup.value?.open()
+  if (!user_id.value) {
+    uni.showToast({
+      title: '请先登录',
+      icon: 'error',
+      duration: 500,
+    })
+    setTimeout(() => {
+      uni.navigateTo({
+        url: '/pages/login/login',
+      })
+    }, 500)
+    return
+  } else {
+    // 修改弹出层名称
+    popupName.value = name
+    // 打开弹出层
+    popup.value?.open()
+  }
 }
 const onChoose = (e) => {
   // 修改选中地址 并且将其一起提交到新建订单
@@ -282,12 +304,14 @@ const onChoose = (e) => {
 }
 //获取用户购物车数量
 const getCartCount = async () => {
+  if (!user_id.value) return
   const res = await getCartCountAPI(parseInt(user_id.value))
   options.value[2].info = res.result
   cartCount.value = res.result
 }
 // 获取用户书本收藏情况
 const getBookCollect = async () => {
+  if (!user_id.value) return
   const res = await getBookCollectAPI(parseInt(user_id.value), parseInt(book_id.value))
   if (res.code != '-1' && res.result) {
     options.value[1].icon = 'star-filled'
@@ -295,7 +319,7 @@ const getBookCollect = async () => {
   }
 }
 
-onMounted(async () => {
+onShow(async () => {
   getBookById()
   await getAddressListById()
   await getCartCount()

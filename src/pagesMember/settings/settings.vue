@@ -1,7 +1,7 @@
 <template>
   <view class="settings">
     <!-- 个人信息和地址 -->
-    <view class="itemList"
+    <view class="itemList" v-show="memberStore.profile"
       ><navigator
         url="/pagesMember/profile/profile"
         open-type="navigate"
@@ -11,7 +11,7 @@
         <view>
           我的基本信息<uni-icons type="right" size="16" class="icon"></uni-icons></view></navigator
     ></view>
-    <view class="itemList"
+    <view class="itemList" v-show="memberStore.profile"
       ><navigator
         url="/pagesMember/address/address"
         open-type="navigate"
@@ -37,8 +37,18 @@
         关于rooki图书商城<uni-icons type="right" size="16" class="icon"></uni-icons></navigator
     ></view>
 
-    <view class="outLogin">
-      <viwe @tap="outLogin" class="outLoginBtn">退出登录</viwe>
+    <view class="outLogin" v-if="memberStore.profile">
+      <view @tap="outLogin" class="outLoginBtn">退出登录</view>
+    </view>
+    <view class="outLogin" v-else>
+      <navigator
+        class="outLoginBtn"
+        url="/pages/login/login"
+        open-type="navigate"
+        hover-class="navigator-hover"
+      >
+        去登录
+      </navigator>
     </view>
   </view>
 </template>

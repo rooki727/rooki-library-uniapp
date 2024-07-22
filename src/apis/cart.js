@@ -53,3 +53,17 @@ export const deleteMemberCartAPI = (cart_id) => {
     },
   })
 }
+
+// 添加购物车
+export const addBookCartAPI = (user_id, book_id, number, buildTime) => {
+  return https({
+    url: '/cart/addBookCart',
+    method: 'POST',
+    data: {
+      user_id: user_id,
+      book_id: book_id,
+      number: number,
+      buildTime: buildTime,
+    },
+  })
+}

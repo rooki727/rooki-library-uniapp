@@ -123,19 +123,69 @@ const onSwitchChange = (e) => {
   addressData.value.isDefault = e.detail.value ? 1 : 0
 }
 const onSubmit = async () => {
-  // 表单校验
-  form.value
-    .validate()
-    .then(async () => {
-      // 判断是修改还是添加
-      if (query.address_id) {
-        if (addressData.value.isDefault === 1 && defaultAddressId.value) {
-          await updateDefaultAddressAPI(user_id.value, defaultAddressId.value, 0).then(
-            async (res) => {
+  if (!user_id.value) {
+    uni.showToast({ title: '请先登录', icon: 'error', duration: 500 })
+    setTimeout(() => {
+      uni.navigateTo({ url: '/pages/login/login' })
+    }, 500)
+  } else {
+    // 表单校验
+    form.value
+      .validate()
+      .then(async () => {
+        // 判断是修改还是添加
+        if (query.address_id) {
+          if (addressData.value.isDefault === 1 && defaultAddressId.value) {
+            await updateDefaultAddressAPI(user_id.value, defaultAddressId.value, 0).then(
+              async (res) => {
+                if (res.code != -1) {
+                  await updateAddressAPI(
+                    user_id.value,
+                    address_id.value,
+                    addressData.value.receiver,
+                    addressData.value.phone,
+                    addressData.value.bigAddress,
+                    addressData.value.fullAddress,
+                    addressData.value.isDefault,
+                  ).then((res) => {
+                    if (res.code != -1) {
+                      uni.showToast({ title: '修改成功', icon: 'success', duration: 2000 })
+                      // 返回上一页
+                      setTimeout(() => {
+                        uni.navigateBack()
+                      }, 500)
+                    }
+                  })
+                }
+              },
+            )
+          } else {
+            await updateAddressAPI(
+              user_id.value,
+              address_id.value,
+              addressData.value.receiver,
+              addressData.value.phone,
+              addressData.value.bigAddress,
+              addressData.value.fullAddress,
+              addressData.value.isDefault,
+            ).then((res) => {
               if (res.code != -1) {
-                await updateAddressAPI(
+                uni.showToast({ title: '修改成功', icon: 'success', duration: 2000 })
+                // 返回上一页
+                setTimeout(() => {
+                  uni.navigateBack()
+                }, 500)
+              }
+            })
+          }
+        }
+        // 添加情况
+        else {
+          if (addressData.value.isDefault === 1 && defaultAddressId.value) {
+            await updateDefaultAddressAPI(user_id.value, defaultAddressId.value, 0).then(
+              async () => {
+                await addAddressAPI(
                   user_id.value,
-                  address_id.value,
                   addressData.value.receiver,
                   addressData.value.phone,
                   addressData.value.bigAddress,
@@ -143,40 +193,16 @@ const onSubmit = async () => {
                   addressData.value.isDefault,
                 ).then((res) => {
                   if (res.code != -1) {
-                    uni.showToast({ title: '修改成功', icon: 'success', duration: 2000 })
+                    uni.showToast({ title: '添加成功', icon: 'success', duration: 2000 })
                     // 返回上一页
                     setTimeout(() => {
                       uni.navigateBack()
                     }, 500)
                   }
                 })
-              }
-            },
-          )
-        } else {
-          await updateAddressAPI(
-            user_id.value,
-            address_id.value,
-            addressData.value.receiver,
-            addressData.value.phone,
-            addressData.value.bigAddress,
-            addressData.value.fullAddress,
-            addressData.value.isDefault,
-          ).then((res) => {
-            if (res.code != -1) {
-              uni.showToast({ title: '修改成功', icon: 'success', duration: 2000 })
-              // 返回上一页
-              setTimeout(() => {
-                uni.navigateBack()
-              }, 500)
-            }
-          })
-        }
-      }
-      // 添加情况
-      else {
-        if (addressData.value.isDefault === 1 && defaultAddressId.value) {
-          await updateDefaultAddressAPI(user_id.value, defaultAddressId.value, 0).then(async () => {
+              },
+            )
+          } else {
             await addAddressAPI(
               user_id.value,
               addressData.value.receiver,
@@ -193,30 +219,13 @@ const onSubmit = async () => {
                 }, 500)
               }
             })
-          })
-        } else {
-          await addAddressAPI(
-            user_id.value,
-            addressData.value.receiver,
-            addressData.value.phone,
-            addressData.value.bigAddress,
-            addressData.value.fullAddress,
-            addressData.value.isDefault,
-          ).then((res) => {
-            if (res.code != -1) {
-              uni.showToast({ title: '添加成功', icon: 'success', duration: 2000 })
-              // 返回上一页
-              setTimeout(() => {
-                uni.navigateBack()
-              }, 500)
-            }
-          })
+          }
         }
-      }
-    })
-    .catch(() => {
-      uni.showToast({ title: '请填写完整信息', icon: 'error' })
-    })
+      })
+      .catch(() => {
+        uni.showToast({ title: '请填写完整信息', icon: 'error' })
+      })
+  }
 }
 onLoad(() => {
   if (query.address_id) {

@@ -52,13 +52,13 @@ const memberStore = useMemberStore()
 const user_id = computed(() => memberStore.profile.user_id)
 const addressList = ref([])
 const getAddressListById = async () => {
+  if (!user_id.value) return
   const res = await getAddressListByIdAPI(parseInt(user_id.value))
   addressList.value = res.result
   const defaultAddress = addressList.value.find((item) => item.isDefault === 1)
   addressStore.setDefaultAddress(defaultAddress)
 }
 const onDeleteAddress = (id) => {
-  console.log(id)
   // 二次确认
   uni.showModal({
     content: '删除地址?',

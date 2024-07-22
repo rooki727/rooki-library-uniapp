@@ -63,6 +63,7 @@
     "@dcloudio/uni-mp-xhs": "3.0.0-alpha-3081220230802001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-alpha-3081220230802001",
     "@dcloudio/uni-ui": "^1.5.5",
+    "dayjs": "^1.11.12",
     "pinia": "2.0.27",
     "pinia-plugin-persistedstate": "^3.2.0",
     "vue": "^3.2.47",
@@ -90,6 +91,5 @@
     "sass": "^1.56.1",
     "sass-loader": "10.1.1",
     "vite": "^4.4.9"
-
   }
 }

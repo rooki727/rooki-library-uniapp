@@ -42,13 +42,14 @@
     </view>
     <!-- 按钮 -->
     <view class="bothBtn" v-if="btnName === 'both'">
-      <view class="btnCart">加入购物车</view>
-      <view class="btnBuy">立即购买</view>
+      <view class="btnCart" @tap="addCart">加入购物车</view>
+      <view class="btnBuy" @tap="buyNow">立即购买</view>
     </view>
     <view
       v-else
       class="btn"
       :style="{ 'background-color': btnName === '加入购物车' ? 'orange' : 'orangered' }"
+      @tap="onBtn(btnName)"
       >{{ btnName }}</view
     >
   </view>
@@ -56,8 +57,12 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-
-const emit = defineEmits(['close', 'choose'])
+import { useMemberStore } from '@/stores/modules/member'
+import { addBookCartAPI } from '@/apis/cart'
+import dayjs from 'dayjs'
+const memberStore = useMemberStore()
+const user_id = computed(() => memberStore.profile.user_id)
+const emit = defineEmits(['close', 'choose', 'refresh'])
 const props = defineProps({
   btnName: String,
   book: Object,
@@ -79,7 +84,6 @@ const count = ref(1)
 const disableDecrease = ref(true)
 const addDisable = ref(false)
 const addCount = () => {
-  console.log(111)
   if (count.value >= book.value.stock) {
     addDisable.value = true
   } else {
@@ -97,6 +101,81 @@ const decreaseCount = () => {
     }
   } else {
     return
+  }
+}
+
+// 处理按钮
+const buyNow = () => {
+  if (!isSelected.value) {
+    uni.showToast({
+      title: '请选择规格',
+      icon: 'error',
+    })
+    return
+  } else {
+    if (!user_id.value) {
+      uni.showToast({
+        title: '请先登录',
+        icon: 'error',
+      })
+      setTimeout(() => {
+        uni.navigateTo({
+          url: '/pages/login/login',
+        })
+      }, 1000)
+      return
+    } else {
+      uni.showToast({
+        title: '立即购买',
+        icon: 'success',
+      })
+    }
+  }
+}
+const addCart = async () => {
+  if (!isSelected.value) {
+    uni.showToast({
+      title: '请选择规格',
+      icon: 'error',
+    })
+    return
+  } else {
+    if (!user_id.value) {
+      uni.showToast({
+        title: '请先登录',
+        icon: 'error',
+      })
+      setTimeout(() => {
+        uni.navigateTo({
+          url: '/pages/login/login',
+        })
+      }, 1000)
+      return
+    } else {
+      // 进行添加购物车业务
+      const date = new Date()
+      const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+      console.log(date)
+      await addBookCartAPI(user_id.value, book.value.book_id, count.value, formattedDateTime).then(
+        (res) => {
+          if (res.result) {
+            uni.showToast({
+              title: '添加购物车成功',
+              icon: 'success',
+            })
+            emit('refresh', 'refreshCartCount')
+            emit('close')
+          }
+        },
+      )
+    }
+  }
+}
+const onBtn = (name) => {
+  if (name === '加入购物车') {
+    addCart()
+  } else if (name === '立即购买') {
+    buyNow()
   }
 }
 </script>

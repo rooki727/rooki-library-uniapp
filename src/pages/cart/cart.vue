@@ -27,7 +27,7 @@
     <!-- 已登录: 显示购物车 -->
     <template v-if="memberStore.profile">
       <!-- 购物车列表 -->
-      <view class="cartList" v-if="true">
+      <view class="cartList" v-if="cartList.length > 0">
         <!-- 滑动操作分区 -->
         <uni-swipe-action>
           <!-- 滑动操作项 -->
@@ -132,7 +132,7 @@ import {
   deleteMemberCartAPI,
 } from '@/apis/cart'
 import { useMemberStore } from '@/stores/modules/member'
-import { onLoad } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
 import { ref, computed } from 'vue'
 import { getAddressListByIdAPI } from '@/apis/address'
 import { useAddressStore } from '@/stores/modules/address'
@@ -154,13 +154,26 @@ const onChoose = (e) => {
   popup.value?.close()
 }
 const openPopup = () => {
-  popup.value?.open()
+  if (!user_id.value) {
+    uni.showToast({
+      title: '请先登录',
+      icon: 'error',
+      duration: 500,
+    })
+    setTimeout(() => {
+      uni.navigateTo({
+        url: '/pages/login/login',
+      })
+    }, 500)
+    return
+  } else {
+    popup.value?.open()
+  }
 }
 // 购买数量
 const disableDecrease = ref(true)
 const addDisable = ref(false)
 const addCount = async (item) => {
-  console.log(item)
   if (item.number >= item.stock) {
     addDisable.value = true
     return
@@ -207,9 +220,11 @@ const onChangeSelectedAll = async () => {
 
 //获取user的购物车
 const getCartList = async () => {
+  if (!user_id.value) return
   const res = await findBookCartByUserIdAPI(parseInt(user_id.value))
   if (res.code != '-1') {
     cartList.value = res.result
+    console.log(cartList.value)
     const isSelectedAllComputed = computed(() => {
       return cartList.value.length && cartList.value.every((v) => v.selected)
     })
@@ -220,6 +235,7 @@ const getCartList = async () => {
 const addressList = ref([])
 const defaultAddress = ref('')
 const getAddressListById = async () => {
+  if (!user_id.value) return
   const res = await getAddressListByIdAPI(parseInt(user_id.value))
   addressList.value = res.result
   defaultAddress.value = addressList.value.find((item) => item.isDefault === 1)
@@ -228,7 +244,6 @@ const getAddressListById = async () => {
 // 加载更多
 const guessLikeRef = ref(null)
 const onScrolltolower = () => {
-  console.log('到底了')
   guessLikeRef.value.getMore()
 }
 
@@ -261,7 +276,7 @@ const onDeleteCart = (cart_id) => {
     },
   })
 }
-onLoad(() => {
+onShow(() => {
   getCartList()
   getAddressListById()
 })
@@ -411,7 +426,7 @@ page {
     font-size: 26rpx;
     border-radius: 60rpx;
     color: #fff;
-    background-color: #27ba9b;
+    background-color: orangered;
   }
 }
 
