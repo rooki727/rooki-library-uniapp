@@ -47,6 +47,10 @@ import { computed, ref } from 'vue'
 import { useMemberStore } from '@/stores/modules/member'
 import { useAddressStore } from '@/stores/modules/address'
 import { onShow } from '@dcloudio/uni-app'
+const query = defineProps({
+  action: String,
+})
+const action = computed(() => query.action)
 const addressStore = useAddressStore()
 const memberStore = useMemberStore()
 const user_id = computed(() => memberStore.profile.user_id)
@@ -79,9 +83,15 @@ const onDeleteAddress = (id) => {
   })
 }
 const onChooseAddress = (item) => {
-  addressStore.changeSelectedAddress(item)
-  // 返回上一页
-  uni.navigateBack()
+  if (action.value == 'choose') {
+    addressStore.changeSelectedAddress(item)
+    // 返回上一页
+    uni.navigateBack()
+  } else {
+    uni.navigateTo({
+      url: `/pagesMember/optionAddress/optionAddress?address_id=${item.address_id}`,
+    })
+  }
 }
 onShow(() => {
   getAddressListById()

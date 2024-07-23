@@ -52,7 +52,7 @@
 			"path": "pages/book/book",
 			"style": {
 				"navigationBarTitleText": "书本详情",
-        "navigationStyle": "custom",
+				"navigationStyle": "custom",
 				"navigationBarTextStyle": "white"
 			}
 		},
@@ -60,7 +60,7 @@
 			"path": "pages/search/search",
 			"style": {
 				"navigationBarTitleText": "搜索结果",
-        "navigationStyle": "custom",
+				"navigationStyle": "custom",
 				"navigationBarTextStyle": "white"
 			}
 		},
@@ -146,6 +146,36 @@
 					"path": "optionAddress/optionAddress",
 					"style": {
 						"navigationBarTitleText": ""
+					}
+				}
+			]
+		},
+    // 订单分包
+		{
+			"root": "pagesOrder",
+			"pages": [
+				{
+					"path": "orderCreate/orderCreate",
+					"style": {
+						"navigationBarTitleText": "新建订单"
+					}
+				},
+        {
+					"path": "orderDetail/orderDetail",
+					"style": {
+						"navigationBarTitleText": "订单详情"
+					}
+				},
+        {
+					"path": "orderList/orderList",
+					"style": {
+						"navigationBarTitleText": "订单列表"
+					}
+				},
+        {
+					"path": "orderPayment/orderPayment",
+					"style": {
+						"navigationBarTitleText": "支付结果"
 					}
 				}
 			]

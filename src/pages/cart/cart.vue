@@ -13,14 +13,14 @@
     <view class="contentCart" @tap="openPopup">
       <view class="chooseAddress"
         ><uni-icons type="location" size="13"></uni-icons>配送至：
-        <view class="addressView" v-if="!selectAddress && !defaultAddress"
+        <view class="addressView" v-if="!selectedAddress && !defaultAddress"
           >请选择配送地址<uni-icons type="right" size="12"></uni-icons>
         </view>
-        <view class="addressView" v-if="defaultAddress && !selectAddress">
-          {{ defaultAddress.bigAddress }} {{ defaultAddress.fullAddress }}</view
+        <view class="addressView" v-else-if="selectedAddress">
+          {{ selectedAddress.bigAddress }} {{ selectedAddress.fullAddress }}</view
         >
-        <view class="addressView" v-else>
-          {{ selectAddress.bigAddress }} {{ selectAddress.fullAddress }}</view
+        <view class="addressView" v-else-if="defaultAddress && !selectedAddress">
+          {{ defaultAddress.bigAddress }} {{ defaultAddress.fullAddress }}</view
         >
       </view>
     </view>
@@ -138,17 +138,18 @@ import { getAddressListByIdAPI } from '@/apis/address'
 import { useAddressStore } from '@/stores/modules/address'
 import AddressPanel from '@/components/AddressPanel.vue'
 import guessLike from '@/components/guessLike.vue'
+import { addOrderListAPI, addOrderDetailAPI } from '@/apis/order'
+import dayjs from 'dayjs'
 // 获取屏幕边界到安全区域距离
 const addressStore = useAddressStore()
 const memberStore = useMemberStore()
 const cartList = ref([])
 const user_id = computed(() => memberStore.profile.user_id)
-const selectAddress = ref('')
+const selectedAddress = computed(() => addressStore.selectedAddress)
 const popup = ref(null)
 // 处理地址选择
 const onChoose = (e) => {
   // 修改选中地址 并且将其一起提交到新建订单
-  selectAddress.value = e
   // 将stores数据改变 使得新建页面有地址数据
   addressStore.selectedAddress = e
   popup.value?.close()
@@ -200,13 +201,17 @@ const decreaseCount = async (item) => {
   }
 }
 // 处理勾选
+const isSelectedAll = ref(false)
 const changeChecked = async (item) => {
   item.isSelected = item.isSelected === 1 ? 0 : 1
+  const isSelectedAllComputed = computed(() => {
+    return cartList.value.length && cartList.value.every((v) => v.isSelected === 1)
+  })
+  isSelectedAll.value = isSelectedAllComputed.value
   await updateCartSelectedAPI(item.cart_id, item.isSelected)
 }
 
 // 计算全选状态
-const isSelectedAll = ref(false)
 // 全选处理
 const onChangeSelectedAll = async () => {
   // 全选状态取反
@@ -226,7 +231,7 @@ const getCartList = async () => {
     cartList.value = res.result
     console.log(cartList.value)
     const isSelectedAllComputed = computed(() => {
-      return cartList.value.length && cartList.value.every((v) => v.selected)
+      return cartList.value.length && cartList.value.every((v) => v.isSelected === 1)
     })
     isSelectedAll.value = isSelectedAllComputed.value
   }
@@ -275,6 +280,38 @@ const onDeleteCart = (cart_id) => {
       }
     },
   })
+}
+// 支付结算按钮
+const gotoPayment = async () => {
+  if (selectedCartListCount.value === 0) {
+    uni.showToast({
+      title: '请选择商品',
+      icon: 'error',
+      duration: 500,
+    })
+    return
+  } else {
+    const date = new Date()
+    const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+    await addOrderListAPI(
+      user_id.value,
+      selectedCartListCount.value,
+      selectedCartListMoney.value,
+      formattedDateTime,
+    ).then(async (res) => {
+      if (res.result) {
+        const order_id = res.result
+        selectedCartList.value.forEach(async (item) => {
+          await deleteMemberCartAPI(item.cart_id)
+          await addOrderDetailAPI(order_id, item.book_id, item.number).then(async () => {
+            uni.navigateTo({
+              url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
+            })
+          })
+        })
+      }
+    })
+  }
 }
 onShow(() => {
   getCartList()

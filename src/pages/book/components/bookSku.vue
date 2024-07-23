@@ -59,6 +59,7 @@
 import { computed, ref } from 'vue'
 import { useMemberStore } from '@/stores/modules/member'
 import { addBookCartAPI } from '@/apis/cart'
+import { addOrderListAPI, addOrderDetailAPI } from '@/apis/order'
 import dayjs from 'dayjs'
 const memberStore = useMemberStore()
 const user_id = computed(() => memberStore.profile.user_id)
@@ -105,7 +106,7 @@ const decreaseCount = () => {
 }
 
 // 处理按钮
-const buyNow = () => {
+const buyNow = async () => {
   if (!isSelected.value) {
     uni.showToast({
       title: '请选择规格',
@@ -125,9 +126,22 @@ const buyNow = () => {
       }, 1000)
       return
     } else {
-      uni.showToast({
-        title: '立即购买',
-        icon: 'success',
+      const date = new Date()
+      const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+      await addOrderListAPI(
+        user_id.value,
+        count.value,
+        parseInt(book.value.price) * count.value,
+        formattedDateTime,
+      ).then(async (res) => {
+        if (res.result) {
+          const order_id = res.result
+          await addOrderDetailAPI(order_id, book.value.book_id, count.value).then(async () => {
+            uni.navigateTo({
+              url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
+            })
+          })
+        }
       })
     }
   }
@@ -155,7 +169,6 @@ const addCart = async () => {
       // 进行添加购物车业务
       const date = new Date()
       const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-      console.log(date)
       await addBookCartAPI(user_id.value, book.value.book_id, count.value, formattedDateTime).then(
         (res) => {
           if (res.result) {
