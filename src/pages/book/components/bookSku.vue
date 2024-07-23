@@ -59,7 +59,6 @@
 import { computed, ref } from 'vue'
 import { useMemberStore } from '@/stores/modules/member'
 import { addBookCartAPI } from '@/apis/cart'
-import { addOrderListAPI, addOrderDetailAPI } from '@/apis/order'
 import dayjs from 'dayjs'
 const memberStore = useMemberStore()
 const user_id = computed(() => memberStore.profile.user_id)
@@ -126,22 +125,9 @@ const buyNow = async () => {
       }, 1000)
       return
     } else {
-      const date = new Date()
-      const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-      await addOrderListAPI(
-        user_id.value,
-        count.value,
-        parseInt(book.value.price) * count.value,
-        formattedDateTime,
-      ).then(async (res) => {
-        if (res.result) {
-          const order_id = res.result
-          await addOrderDetailAPI(order_id, book.value.book_id, count.value).then(async () => {
-            uni.navigateTo({
-              url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
-            })
-          })
-        }
+      const way = 'book'
+      uni.navigateTo({
+        url: `/pagesOrder/orderCreate/orderCreate?number=${count.value}&book_id=${book.value.book_id}&way=${way}`,
       })
     }
   }

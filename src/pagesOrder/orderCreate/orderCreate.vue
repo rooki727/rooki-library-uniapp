@@ -40,7 +40,7 @@
         >
       </view>
       <view class="countOrder"
-        >X<text style="font-size: 17px">{{ item.detail_number }}</text></view
+        >X<text style="font-size: 17px">{{ item.number }}</text></view
       >
     </navigator>
     <!-- 配送信息和订单备注 -->
@@ -86,17 +86,30 @@
 </template>
 <script setup>
 import { useAddressStore } from '@/stores/modules/address'
-import { getOrderDetailsWithBooksAPI } from '@/apis/order'
+import { getBookByIdAPI } from '@/apis/book'
+// import { getOrderDetailsWithBooksAPI } from '@/apis/order'
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-// import { useMemberStore } from '@/stores/modules/member'
+import { useMemberStore } from '@/stores/modules/member'
+import { addOrderListAPI, addOrderDetailAPI } from '@/apis/order'
+import { deleteMemberCartAPI } from '@/apis/cart'
+import dayjs from 'dayjs'
+import { useCartStore } from '@/stores/modules/cart'
+const cartStore = useCartStore()
+const memberStore = useMemberStore()
+const cartList = computed(() => cartStore.cartList)
 const addressStore = useAddressStore()
+const user_id = computed(() => memberStore.profile.user_id)
 const selectedAddress = computed(() => addressStore.selectedAddress)
 const defaultAddress = computed(() => addressStore.defaultAddress)
 const query = defineProps({
-  order_id: Number,
+  way: String,
+  number: Number,
+  book_id: Number,
 })
-const order_id = computed(() => query.order_id)
+const book_id = computed(() => query.book_id)
+const number = computed(() => query.number)
+const way = computed(() => query.way)
 const buyerMessage = ref('')
 const deliveryList = ref([
   { type: 1, text: '时间不限 (周一至周日)' },
@@ -119,11 +132,77 @@ const gotoAddress = () => {
 }
 // 根据id获取订单信息
 const orderList = ref([])
-const totalMoney = computed(() => orderList.value[0]?.order_money)
+// 获得总价
+const totalMoney = computed(() =>
+  orderList.value.reduce((sum, item) => sum + item.price * item.number, 0),
+)
+// 获得总数
+const totalCount = computed(() => orderList.value.reduce((sum, item) => sum + item.number, 0))
 const getOrderDetailsWithBooks = async () => {
-  const res = await getOrderDetailsWithBooksAPI(order_id.value)
-  orderList.value = res.result
-  console.log(orderList.value)
+  if (way.value === 'cart') {
+    orderList.value = cartList.value
+    console.log(orderList.value)
+  } else if (way.value === 'book') {
+    const res = await getBookByIdAPI(book_id.value)
+    const book = ref({})
+    book.value = res.result
+    book.value.number = number.value
+    orderList.value[0] = book.value
+    console.log(orderList.value)
+  }
+}
+// 点击提交按钮
+const onOrderSubmit = async () => {
+  if (!selectedAddress.value.address_id) {
+    uni.showToast({
+      title: '请选择地址',
+      icon: 'none',
+    })
+    return
+  }
+  // 如果是购物车订单
+  else if (way.value === 'cart') {
+    const date = new Date()
+    const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+    await addOrderListAPI(
+      user_id.value,
+      totalCount.value,
+      totalMoney.value,
+      formattedDateTime,
+    ).then(async (res) => {
+      if (res.result) {
+        const order_id = res.result
+        orderList.value.forEach(async (item) => {
+          await deleteMemberCartAPI(item.cart_id)
+          await addOrderDetailAPI(order_id, item.book_id, item.number).then(async () => {
+            // uni.navigateTo({
+            //   url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
+            // })
+          })
+        })
+      }
+    })
+  }
+  // 如果是书本页面直接提交
+  else if (way.value === 'book') {
+    const date = new Date()
+    const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+    await addOrderListAPI(
+      user_id.value,
+      number.value,
+      parseInt(orderList.value[0].price) * number.value,
+      formattedDateTime,
+    ).then(async (res) => {
+      if (res.result) {
+        const order_id = res.result
+        await addOrderDetailAPI(order_id, book_id.value, number.value).then(async () => {
+          // uni.navigateTo({
+          //   url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
+          // })
+        })
+      }
+    })
+  }
 }
 onLoad(() => {
   getOrderDetailsWithBooks()

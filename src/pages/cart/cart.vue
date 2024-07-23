@@ -138,8 +138,9 @@ import { getAddressListByIdAPI } from '@/apis/address'
 import { useAddressStore } from '@/stores/modules/address'
 import AddressPanel from '@/components/AddressPanel.vue'
 import guessLike from '@/components/guessLike.vue'
-import { addOrderListAPI, addOrderDetailAPI } from '@/apis/order'
-import dayjs from 'dayjs'
+
+import { useCartStore } from '@/stores/modules/cart'
+const cartStore = useCartStore()
 // 获取屏幕边界到安全区域距离
 const addressStore = useAddressStore()
 const memberStore = useMemberStore()
@@ -291,25 +292,10 @@ const gotoPayment = async () => {
     })
     return
   } else {
-    const date = new Date()
-    const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-    await addOrderListAPI(
-      user_id.value,
-      selectedCartListCount.value,
-      selectedCartListMoney.value,
-      formattedDateTime,
-    ).then(async (res) => {
-      if (res.result) {
-        const order_id = res.result
-        selectedCartList.value.forEach(async (item) => {
-          await deleteMemberCartAPI(item.cart_id)
-          await addOrderDetailAPI(order_id, item.book_id, item.number).then(async () => {
-            uni.navigateTo({
-              url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
-            })
-          })
-        })
-      }
+    cartStore.setCartlist(selectedCartList.value)
+    const way = 'cart'
+    uni.navigateTo({
+      url: `/pagesOrder/orderCreate/orderCreate?way=${way}`,
     })
   }
 }
