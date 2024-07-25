@@ -60,14 +60,14 @@
       </view>
       <view class="orderContent">
         <navigator
-          v-for="item in orderTitle"
+          v-for="item in mergedOrders"
           :key="item.type"
           :url="`/pagesOrder/orderList/orderList?type=${item.type}`"
           open-type="navigate"
           hover-class="navigator-hover"
         >
           <view class="orderVerify">
-            <view class="orderNumber">1</view>
+            <view class="orderNumber" v-show="item.count > 0">{{ item.count }}</view>
             <uni-icons custom-prefix="iconfont" :type="item.icon" size="30"></uni-icons
             >{{ item.name }}
           </view>
@@ -84,24 +84,55 @@
 import { useMemberStore } from '@/stores/modules/member'
 import GuessLike from '@/components/guessLike.vue'
 import { computed, ref } from 'vue'
+import { findCountStatusAPI } from '@/apis/order'
+import { onShow } from '@dcloudio/uni-app'
 //获取屏幕边界
 const { safeArea } = uni.getSystemInfoSync()
 //获取导航栏高度
 const navbarHeight = safeArea?.top + 20
 const memberStore = useMemberStore()
+const user_id = computed(() => memberStore.profile.user_id)
 const guessLikeRef = ref(null)
 const onScrolltolower = () => {
   guessLikeRef.value?.getMore()
 }
 
 const orderTitle = [
-  { type: 1, name: '待付款', icon: 'icon-daifukuan' },
-  { type: 2, name: '待发货', icon: 'icon-daifahuo' },
-  { type: 3, name: '待收货', icon: 'icon-daishouhuo' },
-  { type: 4, name: '待评价', icon: 'icon-31daipingjia' },
-  { type: 5, name: '退款/售后', icon: 'icon-tuikuanshouhou' },
+  { type: 0, name: '待付款', icon: 'icon-daifukuan' },
+  { type: 1, name: '待发货', icon: 'icon-daifahuo' },
+  { type: 2, name: '待收货', icon: 'icon-daishouhuo' },
+  { type: 3, name: '待评价', icon: 'icon-31daipingjia' },
+  { type: 4, name: '退款/售后', icon: 'icon-tuikuanshouhou' },
 ]
+const statusCountList = ref([])
+// 创建一个新的数组，用于存储合并后的数据
+const mergedOrders = ref([])
+const findCountStatus = async () => {
+  const res = await findCountStatusAPI(user_id.value)
+  statusCountList.value = res.result
+  // 遍历 orderTitle 数组
+  orderTitle.forEach((title) => {
+    // 在 orderCounts 中查找与当前 title.name 匹配的对象
+    const found = statusCountList.value.find((count) => count.status === title.name)
+
+    // 如果找到匹配的对象，将其合并
+    if (found) {
+      mergedOrders.value.push({
+        type: title.type,
+        name: title.name,
+        icon: title.icon,
+        count: found.count,
+      })
+    } else {
+      // 如果未找到匹配的对象，根据需求处理，这里可以选择不做任何操作或者添加默认值等
+      // 例如： mergedOrders.push({ type: title.type, name: title.name, icon: title.icon, count: 0 });
+    }
+  })
+}
 const awatar = computed(() => memberStore.profile?.awatar)
+onShow(() => {
+  findCountStatus()
+})
 </script>
 
 <style lang="scss">
@@ -201,8 +232,8 @@ page {
       flex-direction: column;
       .orderNumber {
         text-align: center;
-        height: 14px;
-        width: 14px;
+        height: 16px;
+        width: 16px;
         border-radius: 50%;
         background-color: rgb(255, 128, 0);
         color: white;

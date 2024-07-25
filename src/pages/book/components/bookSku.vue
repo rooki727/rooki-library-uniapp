@@ -127,7 +127,7 @@ const buyNow = async () => {
     } else {
       const way = 'book'
       uni.navigateTo({
-        url: `/pagesOrder/orderCreate/orderCreate?number=${count.value}&book_id=${book.value.book_id}&way=${way}`,
+        url: `/pagesOrder/orderCreate/orderCreate?detail_number=${count.value}&book_id=${book.value.book_id}&way=${way}`,
       })
     }
   }

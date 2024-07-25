@@ -67,6 +67,7 @@ const categoryFirstBook = computed(() => props.categoryFirstBook)
         max-width: 50px;
       }
       .categoryBookItemDetailText {
+        color: #6a6868;
         overflow: hidden;
         max-width: 120px;
         margin-left: 5px;
@@ -78,7 +79,7 @@ const categoryFirstBook = computed(() => props.categoryFirstBook)
         position: absolute;
         top: 20%;
         right: 0;
-        color: rgb(79, 248, 0);
+        color: orangered;
       }
     }
   }

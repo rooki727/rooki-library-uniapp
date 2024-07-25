@@ -40,7 +40,7 @@
         >
       </view>
       <view class="countOrder"
-        >X<text style="font-size: 17px">{{ item.number }}</text></view
+        >X<text style="font-size: 17px">{{ item.detail_number }}</text></view
       >
     </navigator>
     <!-- 配送信息和订单备注 -->
@@ -57,7 +57,7 @@
           class="input"
           :cursor-spacing="30"
           placeholder="建议留言前先与商家沟通确认"
-          v-model="buyerMessage"
+          v-model="remarkMessage"
         />
       </view>
     </view>
@@ -84,14 +84,15 @@
     </view>
   </view>
 </template>
+
 <script setup>
 import { useAddressStore } from '@/stores/modules/address'
 import { getBookByIdAPI } from '@/apis/book'
-// import { getOrderDetailsWithBooksAPI } from '@/apis/order'
+
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useMemberStore } from '@/stores/modules/member'
-import { addOrderListAPI, addOrderDetailAPI } from '@/apis/order'
+import { addOrderListAPI, addOrderDetailAPI, getOrderDetailsWithBooksAPI } from '@/apis/order'
 import { deleteMemberCartAPI } from '@/apis/cart'
 import dayjs from 'dayjs'
 import { useCartStore } from '@/stores/modules/cart'
@@ -104,13 +105,15 @@ const selectedAddress = computed(() => addressStore.selectedAddress)
 const defaultAddress = computed(() => addressStore.defaultAddress)
 const query = defineProps({
   way: String,
-  number: Number,
+  detail_number: Number,
   book_id: Number,
+  order_id: Number,
 })
 const book_id = computed(() => query.book_id)
-const number = computed(() => query.number)
+const detail_number = computed(() => query.detail_number)
 const way = computed(() => query.way)
-const buyerMessage = ref('')
+const order_id = computed(() => query.order_id)
+const remarkMessage = ref('')
 const deliveryList = ref([
   { type: 1, text: '时间不限 (周一至周日)' },
   { type: 2, text: '工作日送 (周一至周五)' },
@@ -134,25 +137,31 @@ const gotoAddress = () => {
 const orderList = ref([])
 // 获得总价
 const totalMoney = computed(() =>
-  orderList.value.reduce((sum, item) => sum + item.price * item.number, 0),
+  orderList.value.reduce((sum, item) => sum + item.price * item.detail_number, 0),
 )
 // 获得总数
-const totalCount = computed(() => orderList.value.reduce((sum, item) => sum + item.number, 0))
+const totalCount = computed(() =>
+  orderList.value.reduce((sum, item) => sum + item.detail_number, 0),
+)
 const getOrderDetailsWithBooks = async () => {
   if (way.value === 'cart') {
     orderList.value = cartList.value
-    console.log(orderList.value)
   } else if (way.value === 'book') {
     const res = await getBookByIdAPI(book_id.value)
     const book = ref({})
     book.value = res.result
-    book.value.number = number.value
+    book.value.detail_number = detail_number.value
     orderList.value[0] = book.value
-    console.log(orderList.value)
+  } else if (way.value === 'again') {
+    const res = await getOrderDetailsWithBooksAPI(order_id.value)
+    orderList.value = res.result.orderDetailList
   }
 }
 // 点击提交按钮
 const onOrderSubmit = async () => {
+  const order_address = selectedAddress.value.bigAddress + ' ' + selectedAddress.value.fullAddress
+  console.log(order_address)
+  console.log(activeDelivery.value.text)
   if (!selectedAddress.value.address_id) {
     uni.showToast({
       title: '请选择地址',
@@ -160,24 +169,32 @@ const onOrderSubmit = async () => {
     })
     return
   }
+
   // 如果是购物车订单
   else if (way.value === 'cart') {
     const date = new Date()
     const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+
     await addOrderListAPI(
       user_id.value,
       totalCount.value,
       totalMoney.value,
       formattedDateTime,
+      remarkMessage.value,
+      activeDelivery.value.text,
+      order_address,
+      selectedAddress.value.freight,
+      selectedAddress.value.receiver,
+      selectedAddress.value.phone,
     ).then(async (res) => {
       if (res.result) {
         const order_id = res.result
         orderList.value.forEach(async (item) => {
           await deleteMemberCartAPI(item.cart_id)
-          await addOrderDetailAPI(order_id, item.book_id, item.number).then(async () => {
-            // uni.navigateTo({
-            //   url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
-            // })
+          await addOrderDetailAPI(order_id, item.book_id, item.detail_number).then(async () => {
+            uni.redirectTo({
+              url: `/pagesOrder/orderDetail/orderDetail?order_id=${order_id}`,
+            })
           })
         })
       }
@@ -189,16 +206,49 @@ const onOrderSubmit = async () => {
     const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
     await addOrderListAPI(
       user_id.value,
-      number.value,
-      parseInt(orderList.value[0].price) * number.value,
+      detail_number.value,
+      parseInt(orderList.value[0].price) * detail_number.value,
       formattedDateTime,
+      remarkMessage.value,
+      activeDelivery.value.text,
+      order_address,
+      selectedAddress.value.freight,
+      selectedAddress.value.receiver,
+      selectedAddress.value.phone,
     ).then(async (res) => {
       if (res.result) {
         const order_id = res.result
-        await addOrderDetailAPI(order_id, book_id.value, number.value).then(async () => {
-          // uni.navigateTo({
-          //   url: `/pagesOrder/orderCreate/orderCreate?order_id=${order_id}`,
-          // })
+        await addOrderDetailAPI(order_id, book_id.value, detail_number.value).then(async () => {
+          uni.redirectTo({
+            url: `/pagesOrder/orderDetail/orderDetail?order_id=${order_id}`,
+          })
+        })
+      }
+    })
+  } else if (way.value === 'again') {
+    const date = new Date()
+    const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+    await addOrderListAPI(
+      user_id.value,
+      totalCount.value,
+      totalMoney.value,
+      formattedDateTime,
+      remarkMessage.value,
+      activeDelivery.value.text,
+      order_address,
+      selectedAddress.value.freight,
+      selectedAddress.value.receiver,
+      selectedAddress.value.phone,
+    ).then(async (res) => {
+      if (res.result) {
+        const order_id = res.result
+        orderList.value.forEach(async (item) => {
+          await deleteMemberCartAPI(item.cart_id)
+          await addOrderDetailAPI(order_id, item.book_id, item.detail_number).then(async () => {
+            uni.redirectTo({
+              url: `/pagesOrder/orderDetail/orderDetail?order_id=${order_id}`,
+            })
+          })
         })
       }
     })

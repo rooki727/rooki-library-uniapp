@@ -47,6 +47,7 @@ const bookList = computed(() => prop.bookList)
       font-size: 14px;
       text-align: left;
       margin-left: 10px;
+      color: #6a6868;
     }
     .bookItemPrice {
       color: rgb(255, 89, 0);

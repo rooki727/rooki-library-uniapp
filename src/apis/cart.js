@@ -33,13 +33,13 @@ export const updateCartSelectedAPI = (cart_id, isSelected) => {
   })
 }
 
-export const updateCartNumberAPI = (cart_id, number) => {
+export const updateCartNumberAPI = (cart_id, detail_number) => {
   return https({
     url: '/cart/updateCartNumber',
     method: 'POST',
     data: {
       cart_id: cart_id,
-      number: number,
+      detail_number: detail_number,
     },
   })
 }
@@ -55,14 +55,14 @@ export const deleteMemberCartAPI = (cart_id) => {
 }
 
 // 添加购物车
-export const addBookCartAPI = (user_id, book_id, number, buildTime) => {
+export const addBookCartAPI = (user_id, book_id, detail_number, buildTime) => {
   return https({
     url: '/cart/addBookCart',
     method: 'POST',
     data: {
       user_id: user_id,
       book_id: book_id,
-      number: number,
+      detail_number: detail_number,
       buildTime: buildTime,
     },
   })

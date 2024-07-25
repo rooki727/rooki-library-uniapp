@@ -61,7 +61,7 @@
                   :style="{ color: disableDecrease ? 'gray' : 'black' }"
                   >-</view
                 >
-                <view class="numberCountNum">{{ item.number }}</view>
+                <view class="numberCountNum">{{ item.detail_number }}</view>
                 <view
                   class="numberCountBtn"
                   @tap="addCount(item)"
@@ -176,13 +176,13 @@ const openPopup = () => {
 const disableDecrease = ref(true)
 const addDisable = ref(false)
 const addCount = async (item) => {
-  if (item.number >= item.stock) {
+  if (item.detail_number >= item.stock) {
     addDisable.value = true
     return
   } else {
     // 发送请求加数量
-    item.number++
-    await updateCartNumberAPI(item.cart_id, item.number)
+    item.detail_number++
+    await updateCartNumberAPI(item.cart_id, item.detail_number)
     if (disableDecrease.value) {
       disableDecrease.value = false
     }
@@ -190,10 +190,10 @@ const addCount = async (item) => {
 }
 // 减少数量
 const decreaseCount = async (item) => {
-  if (item.number > 1) {
-    item.number--
-    await updateCartNumberAPI(item.cart_id, item.number)
-    if (item.number === 1) {
+  if (item.detail_number > 1) {
+    item.detail_number--
+    await updateCartNumberAPI(item.cart_id, item.detail_number)
+    if (item.detail_number === 1) {
       disableDecrease.value = true
       return
     }
@@ -260,12 +260,14 @@ const selectedCartList = computed(() => {
 
 // 计算选中总件数
 const selectedCartListCount = computed(() => {
-  return selectedCartList.value.reduce((sum, item) => sum + item.number, 0)
+  return selectedCartList.value.reduce((sum, item) => sum + item.detail_number, 0)
 })
 
 // 计算选中总金额
 const selectedCartListMoney = computed(() => {
-  return selectedCartList.value.reduce((sum, item) => sum + item.number * item.price, 0).toFixed(2)
+  return selectedCartList.value
+    .reduce((sum, item) => sum + item.detail_number * item.price, 0)
+    .toFixed(2)
 })
 // 点击删除按钮
 const onDeleteCart = (cart_id) => {

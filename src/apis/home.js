@@ -1,6 +1,6 @@
 import { https } from '@/https/https'
 /**
- * 猜你喜欢-小程序
+ * 猜你喜欢
  */
 export const getHomeGoodsGuessLikeAPI = (page, pageSize) => {
   return https({
