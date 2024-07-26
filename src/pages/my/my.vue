@@ -60,14 +60,16 @@
       </view>
       <view class="orderContent">
         <navigator
-          v-for="item in mergedOrders"
+          v-for="item in orderTitle"
           :key="item.type"
           :url="`/pagesOrder/orderList/orderList?type=${item.type}`"
           open-type="navigate"
           hover-class="navigator-hover"
         >
           <view class="orderVerify">
-            <view class="orderNumber" v-show="item.count > 0">{{ item.count }}</view>
+            <view class="orderNumber" v-show="statusCountList[item.type]?.count > 0">{{
+              statusCountList[item.type]?.count
+            }}</view>
             <uni-icons custom-prefix="iconfont" :type="item.icon" size="30"></uni-icons
             >{{ item.name }}
           </view>
@@ -106,28 +108,9 @@ const orderTitle = [
 ]
 const statusCountList = ref([])
 // 创建一个新的数组，用于存储合并后的数据
-const mergedOrders = ref([])
 const findCountStatus = async () => {
   const res = await findCountStatusAPI(user_id.value)
   statusCountList.value = res.result
-  // 遍历 orderTitle 数组
-  orderTitle.forEach((title) => {
-    // 在 orderCounts 中查找与当前 title.name 匹配的对象
-    const found = statusCountList.value.find((count) => count.status === title.name)
-
-    // 如果找到匹配的对象，将其合并
-    if (found) {
-      mergedOrders.value.push({
-        type: title.type,
-        name: title.name,
-        icon: title.icon,
-        count: found.count,
-      })
-    } else {
-      // 如果未找到匹配的对象，根据需求处理，这里可以选择不做任何操作或者添加默认值等
-      // 例如： mergedOrders.push({ type: title.type, name: title.name, icon: title.icon, count: 0 });
-    }
-  })
 }
 const awatar = computed(() => memberStore.profile?.awatar)
 onShow(() => {

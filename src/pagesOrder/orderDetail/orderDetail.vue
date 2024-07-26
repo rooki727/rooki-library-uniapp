@@ -338,7 +338,7 @@ const onOrderPay = async () => {
     // await wx.requestPayment(res.result)
   }
   // 关闭当前页，再跳转支付结果页
-  // uni.redirectTo({ url: `/pagesOrder/payment/payment?order_id=${order_id.value}` })
+  uni.redirectTo({ url: `/pagesOrder/orderPayment/orderPayment?order_id=${order_id.value}` })
 }
 // 模拟发货
 const onOrderSend = async () => {

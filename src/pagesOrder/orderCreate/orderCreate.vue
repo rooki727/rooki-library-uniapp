@@ -160,8 +160,6 @@ const getOrderDetailsWithBooks = async () => {
 // 点击提交按钮
 const onOrderSubmit = async () => {
   const order_address = selectedAddress.value.bigAddress + ' ' + selectedAddress.value.fullAddress
-  console.log(order_address)
-  console.log(activeDelivery.value.text)
   if (!selectedAddress.value.address_id) {
     uni.showToast({
       title: '请选择地址',

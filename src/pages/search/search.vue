@@ -1,7 +1,7 @@
 <template>
   <!-- 搜索条 -->
   <view class="navbar" :style="{ paddingTop: navbarHeight + 'px' }">
-    <navigator url="/pages/index/index" open-type="switchTab" hover-class="none">
+    <navigator open-type="navigateBack" hover-class="none">
       <view><uni-icons type="left" size="28"></uni-icons> </view>
     </navigator>
     <view class="search">
@@ -14,7 +14,7 @@
       <navigator
         class="searchIcon"
         :url="`/pages/search/search?searchInput=${newSearchInput} `"
-        open-type="navigate"
+        open-type="redirect"
         hover-class="none"
       >
         <uni-icons type="search" size="25"></uni-icons>
