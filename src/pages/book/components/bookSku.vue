@@ -42,13 +42,16 @@
     </view>
     <!-- 按钮 -->
     <view class="bothBtn" v-if="btnName === 'both'">
-      <view class="btnCart" @tap="addCart">加入购物车</view>
-      <view class="btnBuy" @tap="buyNow">立即购买</view>
+      <view class="btnCart" @tap="addCart" :class="{ disabled: count > book.stock }"
+        >加入购物车</view
+      >
+      <view class="btnBuy" @tap="buyNow" :class="{ disabled: count > book.stock }">立即购买</view>
     </view>
     <view
       v-else
       class="btn"
       :style="{ 'background-color': btnName === '加入购物车' ? 'orange' : 'orangered' }"
+      :class="{ disabled: count > book.stock }"
       @tap="onBtn(btnName)"
       >{{ btnName }}</view
     >
@@ -125,10 +128,14 @@ const buyNow = async () => {
       }, 1000)
       return
     } else {
-      const way = 'book'
-      uni.navigateTo({
-        url: `/pagesOrder/orderCreate/orderCreate?detail_number=${count.value}&book_id=${book.value.book_id}&way=${way}`,
-      })
+      if (count.value <= book.value.stock) {
+        const way = 'book'
+        uni.navigateTo({
+          url: `/pagesOrder/orderCreate/orderCreate?detail_number=${count.value}&book_id=${book.value.book_id}&way=${way}`,
+        })
+      } else {
+        return
+      }
     }
   }
 }
@@ -152,11 +159,16 @@ const addCart = async () => {
       }, 1000)
       return
     } else {
-      // 进行添加购物车业务
-      const date = new Date()
-      const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-      await addBookCartAPI(user_id.value, book.value.book_id, count.value, formattedDateTime).then(
-        (res) => {
+      if (count.value <= book.value.stock) {
+        // 进行添加购物车业务
+        const date = new Date()
+        const formattedDateTime = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+        await addBookCartAPI(
+          user_id.value,
+          book.value.book_id,
+          count.value,
+          formattedDateTime,
+        ).then((res) => {
           if (res.result) {
             uni.showToast({
               title: '添加购物车成功',
@@ -165,8 +177,10 @@ const addCart = async () => {
             emit('refresh', 'refreshCartCount')
             emit('close')
           }
-        },
-      )
+        })
+      } else {
+        return
+      }
     }
   }
 }
@@ -209,12 +223,16 @@ const onBtn = (name) => {
       background-color: orange;
       border-radius: 20px;
     }
+
     .btnBuy {
       text-align: center;
       border-radius: 20px;
       width: 40%;
       background-color: orangered;
     }
+  }
+  .disabled {
+    opacity: 0.5;
   }
   .btn {
     position: absolute;

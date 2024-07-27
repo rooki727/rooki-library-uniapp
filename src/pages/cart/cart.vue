@@ -81,7 +81,7 @@
       </view>
 
       <!-- 购物车空状态 -->
-      <view class="cart-blank" v-else>
+      <view :style="{ display: loading ? 'none' : 'flex' }" class="cart-blank" v-else>
         <image src="/static/images/blank_cart.png" class="image" />
         <text class="text">购物车还是空的，快来挑选好货吧</text>
         <navigator open-type="switchTab" url="/pages/index/index" hover-class="none">
@@ -146,6 +146,7 @@ const addressStore = useAddressStore()
 const memberStore = useMemberStore()
 const cartList = ref([])
 const user_id = computed(() => memberStore.profile.user_id)
+const loading = ref(true)
 const selectedAddress = computed(() => addressStore.selectedAddress)
 const popup = ref(null)
 // 处理地址选择
@@ -227,7 +228,9 @@ const onChangeSelectedAll = async () => {
 //获取user的购物车
 const getCartList = async () => {
   if (!user_id.value) return
+  loading.value = true
   const res = await findBookCartByUserIdAPI(parseInt(user_id.value))
+  loading.value = false
   if (res.code != '-1') {
     cartList.value = res.result
     console.log(cartList.value)

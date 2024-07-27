@@ -50,11 +50,11 @@
         <view class="chooseItem" v-if="!selectAddress && !defaultAddress"
           >请选择收获地址<uni-icons type="right" size="16"></uni-icons
         ></view>
-        <view class="chooseItem" v-else-if="defaultAddress && !selectAddress"
-          >送至 {{ defaultAddress.bigAddress }} {{ defaultAddress.fullAddress }}</view
-        >
         <view class="chooseItem" v-else-if="selectAddress"
           >送至 {{ selectAddress.bigAddress }} {{ selectAddress.fullAddress }}</view
+        >
+        <view class="chooseItem" v-else-if="defaultAddress && !selectAddress"
+          >送至 {{ defaultAddress.bigAddress }} {{ defaultAddress.fullAddress }}</view
         >
       </view>
       <view class="chooseItem" @tap="openPopup('service')"

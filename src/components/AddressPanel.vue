@@ -78,7 +78,7 @@ const onChoose = (item) => {
     background-size: 40rpx;
     background-repeat: no-repeat;
     background-position: 0 center;
-    background-image: url('../../../static/images/dingwei.png');
+    background-image: url('../static/images/dingwei.png');
     position: relative;
     .moren {
       position: absolute;

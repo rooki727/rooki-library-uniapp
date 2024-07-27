@@ -124,3 +124,9 @@ export const findCountStatusAPI = (user_id) => {
     },
   })
 }
+export const getOrderBookListByStatusAPI = (order_status, user_id, page, pageSize) => {
+  return https({
+    url: `/order/getOrderBookListByStatus?order_status=${order_status}&user_id=${user_id}&page=${page}&pageSize=${pageSize}`,
+    method: 'POST',
+  })
+}

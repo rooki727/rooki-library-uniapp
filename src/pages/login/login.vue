@@ -64,7 +64,10 @@
 <script setup>
 import { ref } from 'vue'
 import { loginUserAPI } from '@/apis/user'
+import { getAddressListByIdAPI } from '@/apis/address'
 import { useMemberStore } from '@/stores/modules/member'
+import { useAddressStore } from '@/stores/modules/address'
+const addressStore = useAddressStore()
 //获取屏幕边界
 const { safeArea } = uni.getSystemInfoSync()
 //获取导航栏高度
@@ -104,10 +107,14 @@ const submitForm = () => {
       console.log('表单数据信息：', res)
       if (formData.value.checked) {
         await loginUserAPI(parseInt(formData.value.account), formData.value.password)
-          .then((res) => {
+          .then(async (res) => {
             if (res.code != -1) {
               memberStore.setProfile(res)
               clearForm()
+              const addressRes = await getAddressListByIdAPI(parseInt(res.user_id))
+              const defaultAddress = addressRes.result.find((item) => item.isDefault === 1)
+              addressStore.setDefaultAddress(defaultAddress)
+              addressStore.changeSelectedAddress(defaultAddress)
               uni.showToast({ title: '登录成功', icon: 'success', duration: 2000 })
               setTimeout(() => {
                 // 页面跳转

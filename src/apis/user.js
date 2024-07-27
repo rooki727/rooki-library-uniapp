@@ -63,7 +63,16 @@ export const getUserByIdAPI = (user_id) => {
   })
 }
 // 修改用户基本信息
-export const updateUserBaseInfoAPI = (user_id, name, phone, email, gender, address, birthday) => {
+export const updateUserBaseInfoAPI = (
+  user_id,
+  name,
+  phone,
+  email,
+  gender,
+  address,
+  birthday,
+  awatar,
+) => {
   return https({
     url: '/user/updateUser',
     method: 'POST',
@@ -75,6 +84,15 @@ export const updateUserBaseInfoAPI = (user_id, name, phone, email, gender, addre
       gender: gender,
       address: address,
       birthday: birthday,
+      awatar: awatar,
     },
+  })
+}
+// 修改头像
+export const updateUserAvatarAPI = (user_id, avatar) => {
+  return https({
+    url: '/user/updateUserAvatar',
+    method: 'POST',
+    data: { user_id: user_id, awatar: avatar },
   })
 }

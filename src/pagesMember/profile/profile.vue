@@ -10,7 +10,7 @@
     <!-- 头像 -->
     <view class="awatar">
       <view class="awatarContent" @tap="onTapAwatar">
-        <image :src="memberStore.profile.awatar" mode="aspectFill" class="awatarImg" />
+        <image :src="profileData.awatar" mode="aspectFill" class="awatarImg" />
         <view class="awatarText">点击修改头像</view>
       </view>
     </view>
@@ -125,15 +125,15 @@ const profileData = ref({
   gender: '',
   address: '',
   birthday: '',
+  awatar: '',
 })
 const loactionList = ref([])
+const user_id = computed(() => memberStore.profile.user_id)
 const getprofileData = async () => {
-  const user_id = computed(() => memberStore.profile.user_id)
-  console.log(user_id.value)
   const res = await getUserByIdAPI(parseInt(user_id.value))
   if (res.code != '-1') {
     memberStore.setProfile(res)
-    profileData.value = res
+    Object.assign(profileData.value, res)
   }
 }
 // 获取性别
@@ -150,32 +150,32 @@ const onChangeLocation = (ev) => {
   loactionList.value = ev.detail.value
   profileData.value.address = `${loactionList.value[0]} ${loactionList.value[1]} ${loactionList.value[2]}`
 }
-const onTapAwatar = () => {
-  console.log('点击了修改头像')
-
+const onTapAwatar = async () => {
   // / 调用拍照/选择图片
   uni.chooseMedia({
     // 文件个数
     count: 1,
     // 文件类型
     mediaType: ['image'],
-    success: (res) => {
+    success: async (res) => {
       // 本地路径
+
       const { tempFilePath } = res.tempFiles[0]
-      // 文件上传
+      console.log(res)
+      console.log(tempFilePath)
+      // 文件上传 传给后端返回可公网访问的链接
       uni.uploadFile({
-        url: '/user/updateavatar', // [!code ++]
-        name: 'file', // 后端数据字段名  // [!code ++]
+        url: '/user/uploadAvatar', // [!code ++]
+        name: 'image', // 后端数据字段名  // [!code ++]
         filePath: tempFilePath, // 新头像  // [!code ++]
         success: (res) => {
           // 判断状态码是否上传成功
           if (res.statusCode === 200) {
             // 提取头像
-            const { avatar } = JSON.parse(res.data).result
+            const awatar = JSON.parse(res.data).result
             // 当前页面更新头像
-            profileData.value.avatar = avatar // [!code ++]
-            // 更新 Store 头像
-            memberStore.profile.avatar = avatar // [!code ++]
+            profileData.value.awatar = awatar // [!code ++]
+
             uni.showToast({ icon: 'success', title: '更新成功' })
           } else {
             uni.showToast({ icon: 'error', title: '出现错误' })
@@ -196,6 +196,7 @@ const submitForm = async () => {
       profileData.value.gender,
       profileData.value.address,
       profileData.value.birthday,
+      profileData.value.awatar,
     )
       .then(() => {
         uni.showToast({ title: '修改成功', icon: 'success', duration: 2000 })

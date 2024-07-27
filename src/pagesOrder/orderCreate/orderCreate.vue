@@ -69,7 +69,9 @@
       </view>
       <view class="item">
         <text class="text">运费: </text>
-        <text class="settlementPrice">￥{{ selectedAddress.freight }}</text>
+        <text class="settlementPrice"
+          >￥{{ selectedAddress.freight ? selectedAddress.freight : defaultAddress.freight }}</text
+        >
       </view>
     </view>
   </scroll-view>
@@ -90,7 +92,7 @@ import { useAddressStore } from '@/stores/modules/address'
 import { getBookByIdAPI } from '@/apis/book'
 
 import { computed, ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
 import { useMemberStore } from '@/stores/modules/member'
 import { addOrderListAPI, addOrderDetailAPI, getOrderDetailsWithBooksAPI } from '@/apis/order'
 import { deleteMemberCartAPI } from '@/apis/cart'
@@ -181,14 +183,15 @@ const onOrderSubmit = async () => {
       remarkMessage.value,
       activeDelivery.value.text,
       order_address,
-      selectedAddress.value.freight,
-      selectedAddress.value.receiver,
-      selectedAddress.value.phone,
+      selectedAddress.value?.freight,
+      selectedAddress.value?.receiver,
+      selectedAddress.value?.phone,
     ).then(async (res) => {
       if (res.result) {
         const order_id = res.result
         orderList.value.forEach(async (item) => {
           await deleteMemberCartAPI(item.cart_id)
+          cartStore.clearCartlist()
           await addOrderDetailAPI(order_id, item.book_id, item.detail_number).then(async () => {
             uni.redirectTo({
               url: `/pagesOrder/orderDetail/orderDetail?order_id=${order_id}`,
@@ -210,9 +213,9 @@ const onOrderSubmit = async () => {
       remarkMessage.value,
       activeDelivery.value.text,
       order_address,
-      selectedAddress.value.freight,
-      selectedAddress.value.receiver,
-      selectedAddress.value.phone,
+      selectedAddress.value?.freight,
+      selectedAddress.value?.receiver,
+      selectedAddress.value?.phone,
     ).then(async (res) => {
       if (res.result) {
         const order_id = res.result
@@ -234,9 +237,9 @@ const onOrderSubmit = async () => {
       remarkMessage.value,
       activeDelivery.value.text,
       order_address,
-      selectedAddress.value.freight,
-      selectedAddress.value.receiver,
-      selectedAddress.value.phone,
+      selectedAddress.value?.freight,
+      selectedAddress.value?.receiver,
+      selectedAddress.value?.phone,
     ).then(async (res) => {
       if (res.result) {
         const order_id = res.result
@@ -252,7 +255,7 @@ const onOrderSubmit = async () => {
     })
   }
 }
-onLoad(() => {
+onShow(() => {
   getOrderDetailsWithBooks()
 })
 </script>

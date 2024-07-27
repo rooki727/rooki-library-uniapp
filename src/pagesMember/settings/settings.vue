@@ -68,6 +68,8 @@ const outLogin = () => {
         memberStore.clearProfile()
         addressStore.clearAddress()
         addressStore.clearDefaultAddress()
+        // 清理购物车
+        uni.removeStorageSync('cart')
         // 返回上一页
         uni.navigateBack()
       }

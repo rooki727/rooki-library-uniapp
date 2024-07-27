@@ -187,7 +187,8 @@
           v-if="
             order.order_status === '待评价' ||
             order.order_status === '已完成' ||
-            order.order_status === '已退款'
+            order.order_status === '已退款' ||
+            order.order_status === '已取消'
           "
           @tap="onOrderDete"
         >
@@ -366,6 +367,7 @@ const onOrderConfirm = () => {
     })
   }
 }
+// 删除订单
 const onOrderDete = () => {
   uni.showModal({
     content: '确认删除订单',
@@ -494,18 +496,21 @@ page {
 
   .locate,
   .item {
-    min-height: 120rpx;
+    min-height: 100rpx;
     padding: 20px;
     display: flex;
   }
 
   .locate {
     .user {
+      margin-left: 8px;
+      margin-top: 5px;
       font-size: 26rpx;
       color: #444;
     }
 
     .address {
+      margin-left: 8px;
       font-size: 24rpx;
       color: #666;
     }
@@ -580,7 +585,7 @@ page {
 .quickBtn {
   margin-right: 10px;
   height: 28px;
-  width: 100px;
+  width: 80px;
   line-height: 28px;
   font-size: 15px;
   text-align: center;
@@ -752,15 +757,15 @@ page {
   .footer {
     display: flex;
     justify-content: space-between;
-    padding: 30rpx 0 40rpx;
+    padding: 30rpx 0 35rpx;
     font-size: 28rpx;
     color: #444;
 
     .button {
       flex: 1;
-      height: 72rpx;
+      height: 64rpx;
       text-align: center;
-      line-height: 72rpx;
+      line-height: 64rpx;
       margin: 0 20rpx;
       color: #444;
       border-radius: 72rpx;

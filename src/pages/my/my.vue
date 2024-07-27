@@ -5,7 +5,7 @@
         <navigator
           url="/pagesMember/profile/profile"
           open-type="navigate"
-          hover-class="navigator-hover"
+          hover-class="none"
           style="width: 50%"
         >
           <view class="loginCard"
@@ -19,11 +19,7 @@
             </view>
           </view>
         </navigator>
-        <navigator
-          url="/pagesMember/settings/settings"
-          open-type="navigate"
-          hover-class="navigator-hover"
-        >
+        <navigator url="/pagesMember/settings/settings" open-type="navigate" hover-class="none">
           <view class="goSettings">设置</view>
         </navigator>
       </view>
@@ -31,7 +27,7 @@
         <navigator
           url="/pages/login/login"
           open-type="navigate"
-          hover-class="navigator-hover"
+          hover-class="none"
           style="width: 50%"
         >
           <view class="loginCard"
@@ -42,11 +38,7 @@
             </view>
           </view>
         </navigator>
-        <navigator
-          url="/pagesMember/settings/settings"
-          open-type="navigate"
-          hover-class="navigator-hover"
-        >
+        <navigator url="/pagesMember/settings/settings" open-type="navigate" hover-class="none">
           <view class="goSettings">设置</view>
         </navigator>
       </view>
@@ -54,7 +46,12 @@
     <view class="orderFour">
       <view class="orderTitle">
         <view class="myorder">我的订单</view>
-        <navigator url="" open-type="navigate" hover-class="navigator-hover" class="goToAllOrder">
+        <navigator
+          :url="`/pagesOrder/orderList/orderList?type=${0}`"
+          open-type="navigate"
+          hover-class="none"
+          class="goToAllOrder"
+        >
           <view>查看所有订单<uni-icons type="right" size="14"></uni-icons> </view
         ></navigator>
       </view>
@@ -64,7 +61,7 @@
           :key="item.type"
           :url="`/pagesOrder/orderList/orderList?type=${item.type}`"
           open-type="navigate"
-          hover-class="navigator-hover"
+          hover-class="none"
         >
           <view class="orderVerify">
             <view class="orderNumber" v-show="statusCountList[item.type]?.count > 0">{{
@@ -94,17 +91,18 @@ const { safeArea } = uni.getSystemInfoSync()
 const navbarHeight = safeArea?.top + 20
 const memberStore = useMemberStore()
 const user_id = computed(() => memberStore.profile.user_id)
+
 const guessLikeRef = ref(null)
 const onScrolltolower = () => {
   guessLikeRef.value?.getMore()
 }
 
 const orderTitle = [
-  { type: 0, name: '待付款', icon: 'icon-daifukuan' },
-  { type: 1, name: '待发货', icon: 'icon-daifahuo' },
-  { type: 2, name: '待收货', icon: 'icon-daishouhuo' },
-  { type: 3, name: '待评价', icon: 'icon-31daipingjia' },
-  { type: 4, name: '退款/售后', icon: 'icon-tuikuanshouhou' },
+  { type: 1, name: '待付款', icon: 'icon-daifukuan' },
+  { type: 2, name: '待发货', icon: 'icon-daifahuo' },
+  { type: 3, name: '待收货', icon: 'icon-daishouhuo' },
+  { type: 4, name: '待评价', icon: 'icon-31daipingjia' },
+  { type: 5, name: '退款/售后', icon: 'icon-tuikuanshouhou' },
 ]
 const statusCountList = ref([])
 // 创建一个新的数组，用于存储合并后的数据
