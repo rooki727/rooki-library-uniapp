@@ -225,6 +225,8 @@ const onOrderConfirm = (item) => {
       success: async (success) => {
         if (success.confirm) {
           await updateDaiPingJiaAPI(item.order.order_id, '待评价')
+
+          resetData()
           getOrderList()
         }
       },

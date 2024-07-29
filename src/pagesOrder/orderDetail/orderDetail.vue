@@ -337,6 +337,10 @@ const onOrderPay = async () => {
     // 生产环境：获取支付参数 + 发起微信支付
     // const res = await getPayWxPayMiniPayAPI({ orderId: query.id })
     // await wx.requestPayment(res.result)
+    // 实际应该做不同的操作 但是后端只做了假行为 所以一致
+    // 开发环境：模拟支付，修改订单状态为待发货
+    await updateOrderAPI(order_id.value, '待发货')
+    order.value.order_status = '待发货'
   }
   // 关闭当前页，再跳转支付结果页
   uni.redirectTo({ url: `/pagesOrder/orderPayment/orderPayment?order_id=${order_id.value}` })
@@ -344,6 +348,14 @@ const onOrderPay = async () => {
 // 模拟发货
 const onOrderSend = async () => {
   if (isDev) {
+    await updateDaiShouHuoAPI(order_id.value, '待收货')
+    uni.showToast({ icon: 'success', title: '模拟发货完成' })
+    findLogisticsList()
+    // 主动更新订单状态
+    order.value.order_status = '待收货'
+  }
+  // 实际应该做不同的操作 但是后端只做了假行为 所以一致
+  else {
     await updateDaiShouHuoAPI(order_id.value, '待收货')
     uni.showToast({ icon: 'success', title: '模拟发货完成' })
     findLogisticsList()
