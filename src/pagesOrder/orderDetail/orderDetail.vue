@@ -386,7 +386,7 @@ const onOrderDete = () => {
     success: async (success) => {
       if (success.confirm) {
         await deleteMemberOrderAPI(order_id.value)
-        uni.redirectTo({ url: '/pagesOrder/orderList/orderList' })
+        uni.redirectTo({ url: `/pagesOrder/orderList/orderList?type=${0}` })
       }
     },
   })
@@ -394,7 +394,7 @@ const onOrderDete = () => {
 
 const onCancelOrder = async () => {
   await updateCancelReasonAPI(order_id.value, '已取消', reason.value)
-  uni.redirectTo({ url: '/pagesOrder/orderList/orderList' })
+  uni.redirectTo({ url: `/pagesOrder/orderList/orderList?type=${0}` })
 }
 onLoad(() => {
   getOrderList()

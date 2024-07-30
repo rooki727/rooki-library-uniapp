@@ -10,7 +10,7 @@
         <view class="skuPress">出版社</view>
         <view class="skuStock">库存：{{ book.stock }}</view>
         <view class="skuPrice">￥{{ book.price }}</view>
-        <view class="skuSelected">已选：红楼梦</view>
+        <view class="skuSelected">已选：{{ isSelected ? book.book_name : '' }}</view>
       </view>
       <view class="skuSpec">
         <view class="skuSpecTitle">规格</view>

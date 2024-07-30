@@ -128,6 +128,7 @@ const onScrolltolower = () => {
   getBookByCategory()
 }
 onShow(async () => {
+  await getSaleCategoryList()
   try {
     category.value = uni.getStorageSync('categoryId')
     resetData()
@@ -137,14 +138,14 @@ onShow(async () => {
         key: 'categoryId',
       })
     } else {
-      category.value = '科普类'
+      category.value = categoryList.value[0].category
     }
   } catch (error) {
     //没有相关数据
     console.log(error)
   }
   getGuessNameByCategory()
-  getSaleCategoryList()
+
   await getHomegetTotalPage().then(() => {
     getBannerList()
   })
