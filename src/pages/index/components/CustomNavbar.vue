@@ -3,8 +3,8 @@
     <!-- logo文字 -->
     <view class="logo">
       <!-- <image class="logo-image" src=""></image> -->
-      <text class="logo-title">RooKi图书商城</text>
-      <text class="logo-text">多类 · 好看 · 便捷</text>
+      <text class="logo-title">rooKi图书商城</text>
+      <text class="logo-text">rooki-book-shop</text>
     </view>
     <!-- 搜索条 -->
     <view class="search">
@@ -73,11 +73,9 @@ onMounted(() => {
       color: white;
       font-weight: 300;
     }
-    .logo-image {
-      width: 166rpx;
-      height: 39rpx;
-    }
+
     .logo-text {
+      font-style: oblique;
       flex: 1;
       line-height: 28rpx;
       color: #fff;

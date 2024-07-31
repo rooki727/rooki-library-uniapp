@@ -30,9 +30,12 @@ export const https = (options) => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data)
         } else if (res.statusCode === 401) {
-          // memberStore.clearProfile()
-          // uni.navigateTo({ url: '/pages/login/login' })
-          console.log('token处理错误')
+          memberStore.clearProfile()
+          uni.showToast({ title: '登录过期，请重新登录', icon: 'none' })
+          setTimeout(() => {
+            uni.navigateTo({ url: '/pages/login/login' })
+          }, 500)
+          reject(res)
           reject(res)
         } else {
           uni.showToast({ title: res.data.msg || '请求错误', icon: 'none' })

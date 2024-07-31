@@ -367,7 +367,7 @@ page {
   font-weight: 600;
   padding-top: 5px;
   background-color: white;
-  height: 50px;
+  min-height: 50px;
 }
 .chooseItem {
   margin-top: 1px;
