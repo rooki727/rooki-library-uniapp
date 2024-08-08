@@ -45,8 +45,9 @@ const bookList = computed(() => prop.bookList)
     }
     .bookItemText {
       max-height: 21px;
-      width: 90%;
+      max-width: 90%;
       overflow: hidden;
+      white-space: nowrap; /* 禁止换行 */
       text-overflow: ellipsis; /* 超出部分用省略号表示 */
       font-size: 14px;
       text-align: left;
