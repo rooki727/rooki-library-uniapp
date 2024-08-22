@@ -1,6 +1,7 @@
 import { useMemberStore } from '@/stores/modules/member'
 import { computed } from 'vue'
 const baseURL = 'http://175.178.187.126:8888/library_ssm'
+// const baseURL = 'http://localhost:8080/library_ssm'
 const memberStore = useMemberStore()
 const token = computed(() => memberStore.profile?.token)
 const httpInterceptor = {

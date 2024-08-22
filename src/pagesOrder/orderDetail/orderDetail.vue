@@ -68,6 +68,7 @@
     <view
       class="shipment"
       v-if="
+        order.order_status === '待发货' ||
         order.order_status === '待收货' ||
         order.order_status === '待评价' ||
         order.order_status === '已完成' ||
@@ -333,6 +334,7 @@ const onOrderPay = async () => {
     // 开发环境：模拟支付，修改订单状态为待发货
     await updateOrderAPI(order_id.value, '待发货')
     order.value.order_status = '待发货'
+    findLogisticsList()
   } else {
     // 生产环境：获取支付参数 + 发起微信支付
     // const res = await getPayWxPayMiniPayAPI({ orderId: query.id })
@@ -341,6 +343,7 @@ const onOrderPay = async () => {
     // 开发环境：模拟支付，修改订单状态为待发货
     await updateOrderAPI(order_id.value, '待发货')
     order.value.order_status = '待发货'
+    findLogisticsList()
   }
   // 关闭当前页，再跳转支付结果页
   uni.redirectTo({ url: `/pagesOrder/orderPayment/orderPayment?order_id=${order_id.value}` })
@@ -391,13 +394,14 @@ const onOrderDete = () => {
     },
   })
 }
-
+// 取消
 const onCancelOrder = async () => {
   await updateCancelReasonAPI(order_id.value, '已取消', reason.value)
   uni.redirectTo({ url: `/pagesOrder/orderList/orderList?type=${0}` })
 }
 onLoad(() => {
   getOrderList()
+  findLogisticsList()
 })
 </script>
 
