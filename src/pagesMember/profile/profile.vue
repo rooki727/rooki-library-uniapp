@@ -165,7 +165,7 @@ const onTapAwatar = async () => {
       console.log(tempFilePath)
       // 文件上传 传给后端返回可公网访问的链接
       uni.uploadFile({
-        url: '/file/uploadBookMainPicture', // [!code ++]
+        url: '/file/uploadPicture', // [!code ++]
         name: 'image', // 后端数据字段名  // [!code ++]
         filePath: tempFilePath, // 新头像  // [!code ++]
         success: (res) => {

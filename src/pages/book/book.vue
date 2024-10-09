@@ -207,9 +207,8 @@ const onClick = async (e) => {
       }
       break
     case '客服':
-      uni.showToast({
-        title: `点击${e.content.text}`,
-        icon: 'none',
+      uni.navigateTo({
+        url: '/pages/customer/customer',
       })
       break
     default:
