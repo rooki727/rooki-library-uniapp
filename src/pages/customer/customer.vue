@@ -11,13 +11,13 @@
       <view
         v-for="msg in messages"
         :key="msg"
-        :class="['perMessage', msg.user_id ? 'user-message' : 'server-message']"
+        :class="['perMessage', msg.admin_id ? 'server-message' : 'user-message']"
       >
         <view class="time">{{ msg.sendTime.toLocaleString() }}</view>
         <view class="profileImg">
           <image
             class="profileImg"
-            :src="msg.user_id ? profile.awatar : '../../static/images/OIP-C.jpg'"
+            :src="msg.admin_id ? '../../static/images/OIP-C.jpg' : profile.awatar"
             mode="aspectFit"
           >
           </image
@@ -25,7 +25,7 @@
 
         <view class="msgBox">
           <view class="proName">{{
-            msg.user_id ? profile.name || profile.account : '客服小罗'
+            msg.admin_id ? '客服小罗' : profile.name || profile.account
           }}</view>
           <view class="msgContent">{{ msg.message }}</view>
         </view>
@@ -50,7 +50,7 @@ const profile = computed(() => memberStore.profile)
 const user_id = profile.value.user_id
 const message = ref('')
 const messages = ref([{ sendTime: new Date(), message: '你好，请问你要咨询什么?' }])
-const url = 'ws://localhost:8080/library_ssm/chat'
+const url = `ws://119.29.168.176:8080/library_ssm/chat?user_id=${user_id}`
 let reconnectTimer = null
 
 const reconnectInterval = 3000
@@ -90,7 +90,9 @@ const scrollToBottom = async () => {
 
   // 计算并滚动到底部
   if (scrollOffset && scrollOffset.scrollHeight > clientHeight) {
-    scrollTop.value = scrollOffset.scrollHeight
+    console.log(scrollOffset.scrollHeight)
+    scrollTop.value = scrollOffset.scrollHeight + 10000
+    console.log(scrollTop.value)
   }
 }
 
@@ -109,10 +111,9 @@ const connectWebSocket = () => {
   })
   // 接收消息
   uni.onSocketMessage(async (res) => {
-    console.log('收到服务器内容：', res.data)
     // 使用正则表达式提取所有 ChatMessage 中的括号内容
     const matches = res.data.match(/\((.*?)\)/g)
-    const resultArray = matches.map((match) => {
+    const resultArray = matches?.map((match) => {
       // 去掉括号并拆分参数
       const params = match
         .slice(1, -1)
@@ -121,11 +122,10 @@ const connectWebSocket = () => {
           const [key, value] = param.split('=')
           return { [key]: value === 'null' ? null : value } // 处理 null 值
         })
-
       // 将参数转换为对象
       return Object.assign({}, ...params)
     })
-    resultArray.forEach((msg) => {
+    resultArray?.forEach((msg) => {
       msg.sendTime = new Date(msg.sendTime)
       messages.value.push(msg)
     })
@@ -148,7 +148,6 @@ const connectWebSocket = () => {
 //  发送消息
 const sendMessage = async () => {
   if (message.value) {
-    messages.value.push({ sendTime: new Date(), message: message.value, user_id: user_id })
     await scrollToBottom()
     await uni.sendSocketMessage({ data: message.value })
     message.value = ''
@@ -205,10 +204,9 @@ page {
       text-align: left;
     }
     .perMessage {
-      margin-bottom: 20rpx;
+      height: 90px;
       color: rgb(33, 32, 32);
       display: flex;
-      margin-bottom: 20px;
       position: relative;
       .time {
         position: absolute;

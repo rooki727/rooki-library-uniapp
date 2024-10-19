@@ -118,7 +118,7 @@ const submitForm = () => {
               uni.showToast({ title: '登录成功', icon: 'success', duration: 2000 })
               setTimeout(() => {
                 // 页面跳转
-                uni.navigateBack()
+                uni.switchTab({ url: '/pages/my/my' })
               }, 500)
             } else {
               uni.showToast({
