@@ -108,7 +108,7 @@ const submitForm = () => {
       if (formData.value.checked) {
         await loginUserAPI(parseInt(formData.value.account), formData.value.password)
           .then(async (res) => {
-            if (res.code != -1) {
+            if (res.code !== '-1') {
               memberStore.setProfile(res)
               clearForm()
               const addressRes = await getAddressListByIdAPI(parseInt(res.user_id))

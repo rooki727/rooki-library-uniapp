@@ -207,9 +207,23 @@ const onClick = async (e) => {
       }
       break
     case '客服':
-      uni.navigateTo({
-        url: '/pages/customer/customer',
-      })
+      if (!user_id.value) {
+        uni.showToast({
+          title: '请先登录',
+          icon: 'error',
+          duration: 500,
+        })
+        setTimeout(() => {
+          uni.navigateTo({
+            url: '/pages/login/login',
+          })
+        }, 500)
+        break
+      } else {
+        uni.navigateTo({
+          url: '/pages/customer/customer',
+        })
+      }
       break
     default:
       break
