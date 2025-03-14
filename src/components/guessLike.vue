@@ -10,13 +10,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getHomeGoodsGuessLikeAPI } from '@/apis/home'
+import { getRecommendationsAPI } from '@/apis/recommend'
+import { useMemberStore } from '@/stores/modules/member'
 import bookItem from './bookItem.vue'
 const page = ref(1)
-const pageSize = ref(4)
+const pageSize = ref(6)
 const guessLikeList = ref([])
 const finish = ref(false)
+let resList = ref({})
+const memberStore = useMemberStore()
+const user_id = computed(() => memberStore.profile.user_id)
 const getHomeGoodsGuessLike = async () => {
   if (finish.value === true) {
     return uni.showToast({
@@ -24,9 +29,21 @@ const getHomeGoodsGuessLike = async () => {
       icon: 'none',
     })
   }
-  const res = await getHomeGoodsGuessLikeAPI(page.value, pageSize.value)
-  guessLikeList.value.push(...res.result.bookList)
-  if (page.value < res.result.totalPages) {
+
+  if (user_id.value) {
+    console.log('user_id.value', user_id.value)
+
+    resList.value = await getRecommendationsAPI(
+      user_id.value,
+      page.value,
+      pageSize.value,
+      user_id.value,
+    )
+  } else {
+    resList.value = await getHomeGoodsGuessLikeAPI(page.value, pageSize.value)
+  }
+  guessLikeList.value.push(...resList.value.result.bookList)
+  if (page.value < resList.value.result.totalPages) {
     page.value++
   } else {
     finish.value = true
@@ -48,7 +65,7 @@ defineExpose({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 // 猜你喜欢板块
 .guessTitle {
   font-size: 19px;
